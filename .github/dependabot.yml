@@ -1,0 +1,39 @@
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "pub"
+    directories:
+      - "/apps/*"
+      - "/packages/*"
+    schedule:
+      interval: "weekly"
+      timezone: "Asia/Tokyo"
+      time: "10:00"
+    open-pull-requests-limit: 10
+    assignees:
+      - "taiseidev"
+    groups:
+      riverpod-dependencies:
+        patterns:
+          - "*riverpod*"
+          - "build_runner"
+      freezed-dependencies:
+        patterns:
+          - "build_runner"
+          - "freezed*"
+          - "json_annotation"
+          - "json_serializable"
+      slang-dependencies:
+        patterns:
+          - "build_runner"
+          - "slang*"
+      go-router-dependencies:
+        patterns:
+          - "build_runner"
+          - "go_router*"
+      dependencies-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"

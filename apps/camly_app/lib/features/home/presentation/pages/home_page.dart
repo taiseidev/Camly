@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:camly_app/core/navigation/app_router.dart';
 import 'package:camly_app/features/home/navigation/routes/sample_1_page_route.dart';
+import 'package:flutter/material.dart';
 
 import '../../navigation/routes/sample_2_page_route.dart';
 

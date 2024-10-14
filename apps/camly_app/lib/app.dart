@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:camly_i18n/gen/strings.g.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'core/navigation/app_router.dart';
 import 'core/providers/loading_notifier.dart';
 import 'core/providers/navigator_key.dart';
 import 'core/providers/scaffold_messenger_key.dart';
-import 'core/navigation/app_router.dart';
 
 final class App extends ConsumerWidget {
   const App({super.key});
@@ -34,7 +34,7 @@ final class App extends ConsumerWidget {
 
             return Navigator(
               key: ref.watch(navigatorKeyProvider),
-              // onDidRemovePage: (Page<Object?> page) => false,
+              onPopPage: (route, result) => true,
               pages: [
                 MaterialPage<Widget>(
                   child: Stack(

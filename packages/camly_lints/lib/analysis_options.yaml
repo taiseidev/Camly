@@ -34,8 +34,6 @@ linter:
     prefer_mixin: false
     public_member_api_docs: false
 
-    invalid_runtime_check_with_js_interop_types: true
-
     #############
 
     # Far too verbose, and not that big of a deal when using parameter_assignments
