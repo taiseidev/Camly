@@ -1,0 +1,9 @@
+appId: io.onishi.flutterlab.camly_app
+---
+- tapOn: "settings\nTab 2 of 2"
+- tapOn: "home\nTab 1 of 2"
+- tapOn:
+    point: "50%,48%"
+- tapOn: "home\nTab 1 of 2"
+- tapOn:
+    point: "50%,43%"

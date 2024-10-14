@@ -1,0 +1,7 @@
+appId: io.onishi.flutterlab.camly-app
+---
+- tapOn: "settings\nタブ: 2/2"
+- tapOn: "home\nタブ: 1/2"
+- tapOn: "Sample2Pageに遷移"
+- tapOn: "home\nタブ: 1/2"
+- tapOn: "Sample1Pageに遷移"
