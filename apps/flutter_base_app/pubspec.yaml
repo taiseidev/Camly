@@ -1,0 +1,39 @@
+name: flutter_base_app
+description: Built for both iOS and Android platforms
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
+
+  # packages
+  flutter_base_i18n:
+    path: ../../packages/flutter_base_i18n
+  flutter_base_lints:
+    path: ../../packages/flutter_base_lints
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  go_router: ^14.3.0
+  flutter_screenutil: ^5.9.3
+  flutter_launcher_icons: ^0.14.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  riverpod_generator: ^2.4.3
+  build_runner: ^2.4.13
+  go_router_builder: ^2.7.1
+
+flutter:
+  uses-material-design: true
+
+flutter_icons:
+  android: true
+  ios: true

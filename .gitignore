@@ -1,0 +1,16 @@
+# Flutter/Dart specific
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# Build files
+build/
+
+# IDE specific files
+.idea/
+*.iml
+
+# FVM Version Cache
+.fvm/

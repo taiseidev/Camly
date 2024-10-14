@@ -1,0 +1,27 @@
+name: flutter_base
+repository: https://github.com/taiseidev/flutter-base
+
+packages:
+  - packages/*
+  - apps/*
+
+command:
+  bootstrap:
+    environment:
+      sdk: ^3.1.3
+  clean:
+    hooks:
+      post: |
+        melos exec --flutter -- "flutter clean"
+        melos exec --flutter --file-exists="ios/Podfile.lock" -- "cd ios && rm Podfile.lock"
+  version:
+    branch: main
+    releaseUrl: true
+
+scripts:
+  fix:
+    run: melos exec -- "dart fix --apply lib"
+  version:
+    run: melos exec -- "flutter --version"
+
+sdkPath: .fvm/flutter_sdk

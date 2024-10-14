@@ -1,0 +1,71 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug-dev app",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/apps/flutter_base_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/apps/flutter_base_app",
+            "flutterMode": "debug",
+            "args": [
+                "--dart-define=FLAVOR=dev",
+            ]
+        },
+        {
+            "name": "Debug-stg app",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/apps/flutter_base_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/apps/flutter_base_app",
+            "flutterMode": "debug",
+            "args": [
+                "--dart-define=FLAVOR=stg",
+            ]
+        },
+        {
+            "name": "Debug-prod app",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/apps/flutter_base_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/apps/flutter_base_app",
+            "flutterMode": "debug",
+            "args": [
+                "----dart-define=FLAVOR=prod",
+            ]
+        },
+        {
+            "name": "Release-dev app",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/apps/flutter_base_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/apps/flutter_base_app",
+            "flutterMode": "release",
+            "args": [
+                "--dart-define=FLAVOR=dev",
+            ]
+        },
+        {
+            "name": "Release-stg app",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/apps/flutter_base_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/apps/flutter_base_app",
+            "flutterMode": "release",
+            "args": [
+                "--dart-define=FLAVOR=stg",
+            ]
+        },
+        {
+            "name": "Release-prod app",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/apps/flutter_base_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/apps/flutter_base_app",
+            "flutterMode": "release",
+            "args": [
+                "----dart-define=FLAVOR=prod",
+            ]
+        },
+    ]
+}
