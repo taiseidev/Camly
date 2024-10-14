@@ -1,0 +1,6 @@
+# melos_managed_dependency_overrides: camly_i18n,camly_lints
+dependency_overrides:
+  camly_i18n:
+    path: ../../packages/camly_i18n
+  camly_lints:
+    path: ../../packages/camly_lints

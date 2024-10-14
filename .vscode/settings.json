@@ -1,3 +1,30 @@
 {
+  "cSpell.customDictionaries": {
+    "project-words": {
+      "name": "project-words",
+      "path": "${workspaceRoot}/.cspell/project-words.txt",
+      "description": "Words specific to this project",
+      "addWords": true,
+      "scope": "workspace"
+    },
+  },
+  "cSpell.ignorePaths": [
+    "dart_defines",
+    "firebase_options*.dart",
+    "google-services.json",
+    "node_modules",
+    "package-lock.json",
+    "vscode-extension",
+    "*.gen.dart",
+    "*.lock",
+    "*.xcconfig",
+    "**/fvm",
+    "**/.pub-cache",
+    ".git/objects",
+    ".metadata",
+    ".vscode",
+    ".vscode-insiders"
+  ],
+  "cSpell.spellCheckOnlyWorkspaceFiles": true,
   "dart.flutterSdkPath": ".fvm/versions/3.24.3"
 }

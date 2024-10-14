@@ -1,6 +1,0 @@
-# melos_managed_dependency_overrides: flutter_base_i18n,flutter_base_lints
-dependency_overrides:
-  flutter_base_i18n:
-    path: ../../packages/flutter_base_i18n
-  flutter_base_lints:
-    path: ../../packages/flutter_base_lints
