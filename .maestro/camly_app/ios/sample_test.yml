@@ -1,0 +1,16 @@
+appId: io.onishi.flutterlab.camly-app
+---
+- tapOn: "settings\nタブ: 2/2"
+- assertVisible: "設定"
+
+- tapOn: "home\nタブ: 1/2"
+- assertVisible: "テスト"
+
+- tapOn: "Sample2Pageに遷移"
+- assertVisible: "Sample2Page"
+
+- tapOn: "home\nタブ: 1/2"
+- assertVisible: "テスト"
+
+- tapOn: "Sample1Pageに遷移"
+- assertVisible: "Sample1Page"

@@ -1,0 +1,3 @@
+appId: io.onishi.flutterlab.camly-app
+---
+- runFlow: "ios/sample_test.yml"
