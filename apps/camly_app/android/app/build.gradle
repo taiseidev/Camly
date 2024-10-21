@@ -11,7 +11,11 @@ if (project.hasProperty('dart-defines')) {
         .split(',')
         .collectEntries { entry ->
             def pair = new String(entry.decodeBase64(), 'UTF-8').split('=')
-            [(pair.first()): pair.last()]
+            if (pair.length == 2) {
+                [(pair.first()): pair.last()]
+            } else {
+                throw new RuntimeException("Invalid dart-define entry: ${entry}")
+            }
         }
 }
 
@@ -19,9 +23,7 @@ task copySources(type: Copy) {
    from "src/${dartEnvironmentVariables.FLAVOR}/res"
    into 'src/main/res'
 }
-tasks.whenTaskAdded { task ->
-   task.dependsOn copySources
-}
+preBuild.dependsOn(copySources)
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
