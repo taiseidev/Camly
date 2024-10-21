@@ -31,7 +31,7 @@
             "cwd": "${workspaceFolder}/apps/camly_app",
             "flutterMode": "debug",
             "args": [
-                "----dart-define=FLAVOR=prod",
+                "--dart-define=FLAVOR=prod",
             ]
         },
         {
