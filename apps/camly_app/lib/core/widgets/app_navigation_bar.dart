@@ -58,16 +58,19 @@ class AppNavigationBar extends StatelessWidget {
             ),
             _CenterCustomBottomNavigationBarItem(
               icon: Icons.add,
+              // FIXME(onishi): 画面を作成していないため一旦空のコールバック指定。
               onPressed: () {},
             ),
             _CustomBottomNavigationBarItem(
               icon: Icons.notifications,
+              // FIXME(onishi): 画面を作成していないため一旦空のコールバック指定。
               onPressed: () {},
               isSelected: BottomNavigationBarType.notification
                   .isSelected(navigationShell.currentIndex),
             ),
             _CustomBottomNavigationBarItem(
               icon: Icons.settings,
+              // FIXME(onishi): 画面を作成していないため一旦空のコールバック指定。
               onPressed: () {},
               isSelected: BottomNavigationBarType.setting
                   .isSelected(navigationShell.currentIndex),
