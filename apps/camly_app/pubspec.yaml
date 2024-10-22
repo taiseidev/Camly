@@ -23,6 +23,7 @@ dependencies:
   go_router: ^14.3.0
   flutter_screenutil: ^5.9.3
   flutter_launcher_icons: ^0.14.1
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_test:
