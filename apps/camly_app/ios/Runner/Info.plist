@@ -12,17 +12,17 @@
 		<string>6.0</string>
 		<key>CFBundleName</key>
 		<string>Camly$(APP_ID_SUFFIX)</string>
+		<key>LSApplicationCategoryType</key>
+		<string></string>
 		<key>CFBundleDisplayName</key>
 		<string>Camly$(APP_ID_SUFFIX)</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
-		<!-- 多言語対応 -->
 		<key>CFBundleLocalizations</key>
 		<array>
 			<string>en</string>
 			<string>jp</string>
 		</array>
-		<!-- 多言語対応 -->
 		<key>CFBundleShortVersionString</key>
 		<string>$(FLUTTER_BUILD_NAME)</string>
 		<key>CFBundleSignature</key>

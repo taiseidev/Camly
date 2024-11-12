@@ -36,4 +36,6 @@ Runner/GeneratedPluginRegistrant.*
 # .gitignore
 auth_keys/*
 
-/.env
+.env*
+
+fastlane/AuthKey.p8
