@@ -15,21 +15,53 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios appstore_fetch_cert_and_profile
+### ios dev_fetch_cert_and_profile
 
 ```sh
-[bundle exec] fastlane ios appstore_fetch_cert_and_profile
+[bundle exec] fastlane ios dev_fetch_cert_and_profile
 ```
 
-appstore: Fetch Certificate and Profile
+Dev: Fetch Certificate and Profile
 
-### ios readonly_development_fetch_cert_and_profile
+### ios stg_fetch_adhoc_cert_and_profile
 
 ```sh
-[bundle exec] fastlane ios readonly_development_fetch_cert_and_profile
+[bundle exec] fastlane ios stg_fetch_adhoc_cert_and_profile
 ```
 
-readonly development: Fetch Certificate and Profiles
+Stg: Fetch Ad Hoc Certificate and Profile for broader testing
+
+### ios prod_fetch_cert_and_profile
+
+```sh
+[bundle exec] fastlane ios prod_fetch_cert_and_profile
+```
+
+Prod: Fetch Certificate and Profile
+
+### ios readonly_dev_fetch_cert_and_profile
+
+```sh
+[bundle exec] fastlane ios readonly_dev_fetch_cert_and_profile
+```
+
+Readonly: Fetch Certificate and Profiles for Dev and Stg
+
+### ios readonly_stg_fetch_adhoc_cert_and_profile
+
+```sh
+[bundle exec] fastlane ios readonly_stg_fetch_adhoc_cert_and_profile
+```
+
+Readonly: Fetch Ad Hoc Certificate and Profile for Stg
+
+### ios readonly_prod_fetch_cert_and_profile
+
+```sh
+[bundle exec] fastlane ios readonly_prod_fetch_cert_and_profile
+```
+
+Readonly: Fetch Certificate and Profile for Prod
 
 ----
 

@@ -1,34 +1,79 @@
- default_platform(:ios)
- # 管理者用
- platform :ios do
-   desc "appstore: Fetch Certificate and Profile"
-   lane :appstore_fetch_cert_and_profile do
-     api_key = app_store_connect_api_key(
-       key_id: ENV["KEY_ID"],
-       issuer_id: ENV["ISSUER_ID"],
-       key_filepath: ENV["KEY_FILEPATH"],
-       duration: 1200,
-       in_house: false
-     )
+default_platform(:ios)
 
-     match(
-       api_key: api_key,
-       type: "appstore",
-       app_identifier: [ENV["APP_IDENTIFIER"]],
-       force_for_new_devices: true
-     )
-   end
- end
+platform :ios do
+  dev_app_identifier = "io.onishi.flutterlab.camly.dev"
+  stg_app_identifier = "io.onishi.flutterlab.camly.stg"
+  prod_app_identifier = "io.onishi.flutterlab.camly"
 
- # 開発者用
- platform :ios do
-   desc "readonly development: Fetch Certificate and Profiles"
-   lane :readonly_development_fetch_cert_and_profile do
-     match(
-       type: "development",
-       app_identifier: [ENV["APP_IDENTIFIER"]],
-       readonly: false,
-       force_for_new_devices: true
-     )
-   end
- end
+  # 認証情報の設定
+  api_key = app_store_connect_api_key(
+    key_id: ENV["KEY_ID"],
+    issuer_id: ENV["ISSUER_ID"],
+    key_filepath: ENV["KEY_FILEPATH"],
+    duration: 1200,
+    in_house: false
+  )
+
+  # 開発環境（dev、stg）で共通の開発証明書を使用
+  desc "Dev: Fetch Certificate and Profile"
+  lane :dev_fetch_cert_and_profile do
+    match(
+      api_key: api_key,
+      type: "development",
+      app_identifier: [dev_app_identifier],
+      force: true,
+      force_for_new_devices: true
+    )
+  end
+
+    # Ad Hoc配布用のlane（広範囲への配布）
+  desc "Stg: Fetch Ad Hoc Certificate and Profile for broader testing"
+  lane :stg_fetch_adhoc_cert_and_profile do
+    match(
+      api_key: api_key,
+      type: "adhoc",
+      app_identifier: [stg_app_identifier],
+      force_for_new_devices: true
+    )
+  end
+
+  # 本番環境（prod）で配布証明書を使用
+  desc "Prod: Fetch Certificate and Profile"
+  lane :prod_fetch_cert_and_profile do
+    match(
+      api_key: api_key,
+      type: "appstore",
+      app_identifier: [prod_app_identifier],
+      force_for_new_devices: true
+    )
+  end
+
+  # readonlyモードのlane
+  desc "Readonly: Fetch Certificate and Profiles for Dev and Stg"
+  lane :readonly_dev_fetch_cert_and_profile do
+    match(
+      type: "development",
+      app_identifier: [dev_app_identifier],
+      readonly: true
+    )
+  end
+
+    # readonlyモードのAd Hocプロファイル（配布用の証明書とプロファイルを取得）
+  desc "Readonly: Fetch Ad Hoc Certificate and Profile for Stg"
+  lane :readonly_stg_fetch_adhoc_cert_and_profile do
+    match(
+      type: "adhoc",
+      app_identifier: [stg_app_identifier],
+      readonly: true
+    )
+  end
+
+  desc "Readonly: Fetch Certificate and Profile for Prod"
+  lane :readonly_prod_fetch_cert_and_profile do
+    match(
+      type: "appstore",
+      app_identifier: [prod_app_identifier],
+      readonly: true
+    )
+  end
+end
