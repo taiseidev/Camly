@@ -19,5 +19,8 @@ COPY app/ ./
 # Expose the application port
 EXPOSE 8080
 
-# Command to run the application
-CMD ["go", "run", "main.go"]
+# Airをインストール
+RUN go install github.com/cosmtrek/air@v1.40.4
+
+# Airを利用してAPIサーバーを実行
+CMD ["air", "-c", ".air.toml"]
