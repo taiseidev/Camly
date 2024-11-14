@@ -1,6 +1,5 @@
-# Camly
 
-![carbon](https://github.com/user-attachments/assets/b8ce6950-afe1-4b67-a9e8-80c155a93c1c)
+![carbon (1)](https://github.com/user-attachments/assets/e8d5b762-bacf-4007-9594-a2ec53a76614)
 
 
 Camlyは、初心者が写真を学ぶためのサポートや、上級者が知識を共有できる場を提供し、写真の設定や撮影テクニックを発見・共有できるアプリケーションです。
