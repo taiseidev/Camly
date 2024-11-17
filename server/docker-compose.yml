@@ -11,3 +11,28 @@ services:
     working_dir: /app
     ports:
       - "8080:8080"
+
+  db:
+    container_name: camly-db
+    platform: linux/x86_64
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./mysql/.env_mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - golang_test_network
+
+volumes:
+  mysql_data:
+    name: mysql_data
+
+networks:
+  golang_test_network:
+    driver: bridge
