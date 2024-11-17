@@ -1,7 +1,0 @@
-name: camly_system
-version: 0.0.1
-
-description: Core system utilities for the Camly app.
-
-environment:
-  sdk: ^3.5.3

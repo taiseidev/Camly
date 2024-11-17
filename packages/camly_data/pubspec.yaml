@@ -1,7 +1,0 @@
-name: camly_data
-version: 0.0.1
-
-description: Data logic package for the Camly app.
-
-environment:
-  sdk: ^3.5.3
