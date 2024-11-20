@@ -5,12 +5,43 @@ import (
 	"camly-api/internal/user/handler"
 	"camly-api/internal/user/repository"
 	"camly-api/internal/user/service"
+	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
+
+type App struct {
+	db          *gorm.DB
+	userService *service.UserService
+	cleanup     func()
+}
+
+func NewApp(db *gorm.DB) *App {
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+
+	return &App{
+		db:          db,
+		userService: userService,
+		cleanup: func() {
+			sqlDB, err := db.DB()
+			if err == nil {
+				sqlDB.Close()
+			}
+		},
+	}
+}
+
+// TODO: 下記PRの内容を確認して修正。
+// https://github.com/taiseidev/Camly/pull/13#discussion_r1850223272
+// https://github.com/taiseidev/Camly/pull/13#discussion_r1850223270
 
 func main() {
 	e := echo.New()
@@ -23,16 +54,36 @@ func main() {
 		log.Fatalf("failed to connect database: %v", err)
 	}
 
-	// リポジトリ、サービス、ハンドラーの初期化
-	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
+	// App インスタンスを作成し、クリーンアップ関数を defer で登録
+	app := NewApp(db)
+	defer app.cleanup()
+
+	// ハンドラーの初期化
+	userHandler := handler.NewUserHandler(app.userService)
 
 	// ルートを登録
+	// TODO: 必要なミドルウェアの追加やグレースフルシャットダウンの実装を検討する
 	routes.RegisterRoutes(e, userHandler)
 
-	// サーバーを起動
-	if err := e.Start(":8080"); err != nil {
-		log.Fatalf("failed to start server: %v", err)
+	// 終了シグナルを受け取るチャネルを作成
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	// サーバーを非同期で起動
+	go func() {
+		if err := e.Start(":8080"); err != nil && err != echo.ErrInternalServerError {
+			e.Logger.Fatal("サーバーの起動に失敗しました")
+		}
+	}()
+
+	// シグナルを待機
+	<-quit
+
+	// コンテキストを作成してサーバーをシャットダウン
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
 	}
 }
