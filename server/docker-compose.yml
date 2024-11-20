@@ -3,29 +3,29 @@ version: "3.9"
 services:
   app:
     build:
-      context: ./app
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/api/Dockerfile
     container_name: camly-app
     volumes:
-      - ./app:/app
+      - .:/app
+      - .air.toml:/.air.toml
     working_dir: /app
     ports:
       - "8080:8080"
+    networks:
+      - golang_test_network
 
   db:
     container_name: camly-db
-    platform: linux/x86_64
-    build:
-      context: ./mysql
-      dockerfile: Dockerfile
+    image: mysql:8.0
     tty: true
     ports:
       - "3306:3306"
     env_file:
-      - ./mysql/.env_mysql
+      - ./docker/db/.env_mysql
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./mysql/init:/docker-entrypoint-initdb.d
+      - ./docker/db/init:/docker-entrypoint-initdb.d
     networks:
       - golang_test_network
 
