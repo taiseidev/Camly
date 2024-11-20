@@ -7,6 +7,13 @@
       "addWords": true,
       "scope": "workspace"
     },
+    "framework-words": {
+      "name": "framework-words",
+      "path": "${workspaceRoot}/.cspell/framework-words.txt",
+      "description": "Words specific to this framework",
+      "addWords": true,
+      "scope": "workspace"
+    },
   },
   "cSpell.ignorePaths": [
     "dart_defines",
