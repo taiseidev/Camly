@@ -14,3 +14,5 @@ build/
 
 # FVM Version Cache
 .fvm/
+
+.env

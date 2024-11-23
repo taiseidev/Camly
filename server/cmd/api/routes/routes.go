@@ -1,18 +1,16 @@
 package routes
 
 import (
-	"camly-api/internal/user/handler"
+	authHandler "camly-api/internal/auth/handler"
 
 	"github.com/labstack/echo/v4"
 )
 
 // 全てのルートを定義
-func RegisterRoutes(e *echo.Echo, userHandler *handler.UserHandler) {
+func RegisterRoutes(e *echo.Echo, authHandler *authHandler.AuthHandler) {
 	v1 := e.Group("/api/v1")
-	// ユーザー関連のルートを定義
-	userRoutes := v1.Group("/users")
-	// TODO: Add necessary middleware
-	// userRoutes.Use(middleware.JWT([]byte("secret")))
-	userRoutes.POST("", userHandler.CreateUser)
+	// 認証関連のルートを定義
+	authRoutes := v1.Group("/auth")
+	authRoutes.POST("/register", authHandler.SignUp)
 
 }
