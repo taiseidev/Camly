@@ -18,8 +18,9 @@ type User struct {
 }
 
 type UserResponse struct {
-	ID   uint   `json:"id" gorm:"primaryKey"`
-	Name string `json:"email" gorm:"unique"`
+	ID    uint   `json:"id" gorm:"primaryKey"`
+	Name  string `json:"name" gorm:"unique"`
+	Email string `json:"email" gorm:"unique"`
 }
 
 func (u *User) Validate() error {

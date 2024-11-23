@@ -1,4 +1,4 @@
-package authService
+package service
 
 import (
 	"camly-api/internal/auth"

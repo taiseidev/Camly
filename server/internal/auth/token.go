@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -21,6 +22,9 @@ func getJwtSecret() []byte {
 
 // アクセストークンを生成
 func GenerateAccessToken(userID uint) (string, error) {
+	if userID == 0 {
+		return "", errors.New("invalid user ID")
+	}
 	jwtSecret := getJwtSecret()
 	claims := Claims{
 		UserID: userID,
@@ -34,6 +38,9 @@ func GenerateAccessToken(userID uint) (string, error) {
 
 // リフレッシュトークンを生成
 func GenerateRefreshToken(userID uint) (string, error) {
+	if userID == 0 {
+		return "", errors.New("invalid user ID")
+	}
 	jwtSecret := getJwtSecret()
 	claims := Claims{
 		UserID: userID,
@@ -47,18 +54,33 @@ func GenerateRefreshToken(userID uint) (string, error) {
 
 // トークンを検証
 func ValidateToken(tokenString string) (*Claims, error) {
+	if tokenString == "" {
+		return nil, errors.New("empty token")
+	}
 	jwtSecret := getJwtSecret()
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		// Verify the signing algorithm
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return jwtSecret, nil
 	})
 
 	if err != nil || !token.Valid {
-		return nil, errors.New("invalid token")
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, errors.New("token has expired")
+		}
+		return nil, fmt.Errorf("invalid token: %w", err)
 	}
 
 	claims, ok := token.Claims.(*Claims)
 	if !ok {
 		return nil, errors.New("could not parse claims")
+	}
+
+	// Verify token hasn't expired
+	if claims.ExpiresAt != nil && claims.ExpiresAt.Before(time.Now()) {
+		return nil, errors.New("token has expired")
 	}
 
 	return claims, nil

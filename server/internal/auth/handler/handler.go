@@ -1,4 +1,4 @@
-package authHandler
+package handler
 
 import (
 	authService "camly-api/internal/auth/service"
@@ -17,7 +17,7 @@ type AuthHandler struct {
 
 func NewAuthHandler(authService *authService.AuthService) *AuthHandler {
 	if authService == nil {
-		panic("userService cannot be nil")
+		panic("authService cannot be nil")
 	}
 	return &AuthHandler{
 		authService: authService,
@@ -46,7 +46,7 @@ func (h *AuthHandler) SignUp(c echo.Context) error {
 	// Serviceを呼び出し
 	tokens, err := h.authService.SignUp(ctx, req)
 	if err != nil {
-		log.Fatalf("failed to migrate database: %v", err)
+		log.Printf("failed to create user: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error":   "User creation failed",
 			"details": "An error occurred while processing your request",
@@ -67,5 +67,12 @@ func validateUserInput(user *model.User) error {
 	if !utils.IsValidEmail(user.Email) {
 		return fmt.Errorf("invalid email format")
 	}
+	if user.Password == "" {
+		return fmt.Errorf("password is required")
+	}
+	if len(user.Password) < 8 {
+		return fmt.Errorf("password must be at least 8 characters long")
+	}
+	// Additional password complexity checks can be added here
 	return nil
 }

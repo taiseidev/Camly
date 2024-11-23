@@ -32,14 +32,14 @@ func NewDB() *gorm.DB {
 	if os.Getenv("GO_ENV") == "dev" {
 		err := godotenv.Load("docker/db/.env")
 		if err != nil {
-			log.Fatalln(err)
+			log.Fatalln("Failed to load environment variables")
 		}
 	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_DATABASE"), os.Getenv("MYSQL_PORT"), os.Getenv("MYSQL_DATABASE"))
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_HOST"), os.Getenv("MYSQL_PORT"), os.Getenv("MYSQL_DATABASE"))
 	// データベースに接続
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		log.Fatalf("Failed to connect to the database")
 	}
 	fmt.Println("🚀 DB connected!!")
 	return db
@@ -73,6 +73,9 @@ func main() {
 
 	// DB接続
 	db := NewDB()
+	if db == nil {
+		log.Fatal("Database initialization failed")
+	}
 
 	// App インスタンスを作成し、クリーンアップ関数を defer で登録
 	app := NewApp(db)

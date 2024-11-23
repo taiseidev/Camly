@@ -12,8 +12,8 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// アクセストークンの有効期間
-const AccessTokenExpiration = time.Minute * 30
+// Duration for access token validity
+const AccessTokenExpiration = time.Minute * 7
 
-// リフレッシュトークンの有効期間
-const RefreshTokenExpiration = time.Hour * 24 * 30
+// Duration for refresh token validity
+const RefreshTokenExpiration = time.Hour * 24 * 7

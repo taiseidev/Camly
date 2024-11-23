@@ -1,4 +1,4 @@
-package authRepository
+package repository
 
 import (
 	"camly-api/internal/user/model"
@@ -12,6 +12,7 @@ type AuthRepository struct {
 	db *gorm.DB
 }
 
+// NOTE(onishi): multiple interfaces in the future
 type IAuthRepository interface {
 	SaveUser(ctx context.Context, user *model.User) error
 }

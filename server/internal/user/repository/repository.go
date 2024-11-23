@@ -8,6 +8,7 @@ type UserRepository struct {
 	db *gorm.DB
 }
 
+// TODO(onishi):Add method later.
 type UserRepositoryInterface interface {
 }
 
