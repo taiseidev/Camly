@@ -16,6 +16,10 @@ services:
       - golang_test_network
     depends_on:
       - db
+    environment:
+      - GO_ENV=dev
+    env_file:
+      - .env
 
   db:
     container_name: camly-db
@@ -24,7 +28,7 @@ services:
     ports:
       - "3306:3306"
     env_file:
-      - ./docker/db/.env_mysql
+      - ./docker/db/.env
     volumes:
       - mysql_data:/var/lib/mysql
       - ./docker/db/init:/docker-entrypoint-initdb.d
