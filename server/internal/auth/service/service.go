@@ -5,6 +5,7 @@ import (
 	authRepository "camly-api/internal/auth/repository"
 	"camly-api/internal/user/model"
 	"context"
+	"errors"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -66,4 +67,37 @@ func (s *AuthService) SignUp(ctx context.Context, user model.User) (TokenRespons
 	}
 
 	return tokenRes, nil
+}
+
+func (s *AuthService) Login(ctx context.Context, email string, password string) (TokenResponse, error) {
+	user, err := s.authRepo.GetUserById(ctx, email)
+	if err != nil {
+		return TokenResponse{}, errors.New("user not found")
+	}
+	// パスワードの検証
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return TokenResponse{}, errors.New("invalid credentials")
+	}
+
+	// トークン生成
+	accessToken, err := auth.GenerateAccessToken(user.ID)
+	if err != nil {
+		return TokenResponse{}, err
+	}
+
+	refreshToken, err := auth.GenerateRefreshToken(user.ID)
+	if err != nil {
+		return TokenResponse{}, err
+	}
+
+	// 有効期限を計算
+	accessTokenExpiration := time.Now().Add(auth.AccessTokenExpiration).Format(time.RFC3339)
+	refreshTokenExpiration := time.Now().Add(auth.RefreshTokenExpiration).Format(time.RFC3339)
+
+	return TokenResponse{
+		AccessToken:            accessToken,
+		RefreshToken:           refreshToken,
+		AccessTokenExpiration:  accessTokenExpiration,
+		RefreshTokenExpiration: refreshTokenExpiration,
+	}, nil
 }

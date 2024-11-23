@@ -57,10 +57,39 @@ func (h *AuthHandler) SignUp(c echo.Context) error {
 	return c.JSON(http.StatusOK, tokens)
 }
 
-func validateUserInput(user *model.User) error {
-	if user.Name == "" {
-		return fmt.Errorf("name is required")
+func (h *AuthHandler) Login(c echo.Context) error {
+	var req model.User
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error":   "Invalid request format",
+			"details": err.Error(),
+		})
 	}
+
+	ctx := c.Request().Context()
+
+	// Validate input
+	if err := validateUserInput(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error":   "Validation failed",
+			"details": err.Error(),
+		})
+	}
+
+	// Serviceを呼び出し
+	tokens, err := h.authService.Login(ctx, req.Email, req.Password)
+	if err != nil {
+		log.Printf("failed to create user: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error":   "User creation failed",
+			"details": "An error occurred while processing your request",
+		})
+	}
+	// レスポンスとしてユーザーを返す
+	return c.JSON(http.StatusOK, tokens)
+}
+
+func validateUserInput(user *model.User) error {
 	if user.Email == "" {
 		return fmt.Errorf("email is required")
 	}

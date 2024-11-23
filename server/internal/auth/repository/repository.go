@@ -15,6 +15,7 @@ type AuthRepository struct {
 // NOTE(onishi): multiple interfaces in the future
 type IAuthRepository interface {
 	SaveUser(ctx context.Context, user *model.User) error
+	GetUserById(ctx context.Context, email string) (*model.User, error)
 }
 
 func NewAuthRepository(db *gorm.DB) IAuthRepository {
@@ -42,4 +43,13 @@ func (r *AuthRepository) SaveUser(ctx context.Context, user *model.User) error {
 	}
 
 	return nil
+}
+
+func (r *AuthRepository) GetUserById(ctx context.Context, email string) (*model.User, error) {
+	var user model.User
+	if err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

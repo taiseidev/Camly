@@ -11,6 +11,7 @@ func RegisterRoutes(e *echo.Echo, authHandler *authHandler.AuthHandler) {
 	v1 := e.Group("/api/v1")
 	// 認証関連のルートを定義
 	authRoutes := v1.Group("/auth")
-	authRoutes.POST("/register", authHandler.SignUp)
+	authRoutes.POST("/signup", authHandler.SignUp)
+	authRoutes.POST("/login", authHandler.Login)
 
 }
