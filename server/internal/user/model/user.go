@@ -9,7 +9,7 @@ import (
 
 type User struct {
 	ID        uint           `gorm:"primaryKey;autoIncrement"`
-	Name      string         `gorm:"size:255" json:"name" validate:"required,min=2,max=100"`
+	Name      string         `gorm:"size:255" json:"name" validate:"min=2,max=100"`
 	Email     string         `gorm:"uniqueIndex;size:100" json:"email" validate:"required,email"`
 	Password  string         `gorm:"column:password_hash;size:255" json:"password" validate:"required,min=8"`
 	CreatedAt time.Time      `gorm:"autoCreateTime"`

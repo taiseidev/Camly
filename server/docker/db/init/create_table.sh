@@ -14,7 +14,7 @@ START TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT(10) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(50),
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     status ENUM('active', 'inactive', 'suspended') NOT NULL DEFAULT 'active',
