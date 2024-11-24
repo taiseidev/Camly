@@ -79,9 +79,9 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	// Serviceを呼び出し
 	tokens, err := h.authService.Login(ctx, req.Email, req.Password)
 	if err != nil {
-		log.Printf("failed to create user: %v", err)
+		log.Printf("login failed: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error":   "User creation failed",
+			"error":   "Login failed",
 			"details": "An error occurred while processing your request",
 		})
 	}
