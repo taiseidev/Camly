@@ -5,11 +5,12 @@ import (
 	"time"
 )
 
+// TokenResponse represents the authentication tokens and their expiration times
 type TokenResponse struct {
-	AccessToken            string `json:"access_token"`
-	RefreshToken           string `json:"refresh_token"`
-	AccessTokenExpiration  string `json:"access_token_expiration"`
-	RefreshTokenExpiration string `json:"refresh_token_expiration"`
+	AccessToken            string    `json:"access_token"`
+	RefreshToken           string    `json:"refresh_token"`
+	AccessTokenExpiration  time.Time `json:"access_token_expiration"`
+	RefreshTokenExpiration time.Time `json:"refresh_token_expiration"`
 }
 
 func GenerateTokens(userID uint) (TokenResponse, error) {
@@ -23,8 +24,8 @@ func GenerateTokens(userID uint) (TokenResponse, error) {
 		return TokenResponse{}, err
 	}
 
-	accessTokenExpiration := time.Now().Add(auth.AccessTokenExpiration).Format(time.RFC3339)
-	refreshTokenExpiration := time.Now().Add(auth.RefreshTokenExpiration).Format(time.RFC3339)
+	accessTokenExpiration := time.Now().Add(auth.AccessTokenExpiration)
+	refreshTokenExpiration := time.Now().Add(auth.RefreshTokenExpiration)
 
 	return TokenResponse{
 		AccessToken:            accessToken,
