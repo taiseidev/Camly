@@ -1,6 +1,7 @@
 package service
 
 import (
+	authModel "camly-api/internal/auth/model"
 	authRepository "camly-api/internal/auth/repository"
 	"camly-api/internal/auth/util"
 	"camly-api/internal/user/model"
@@ -24,22 +25,35 @@ func (s *AuthService) SignUp(ctx context.Context, user model.User) (util.TokenRe
 
 	// パスワードをハッシュ化
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
-
 	if err != nil {
 		return util.TokenResponse{}, err
 	}
 
 	newUser := model.User{Name: user.Name, Email: user.Email, Password: string(hash)}
-
 	if err := s.authRepo.SaveUser(ctx, &newUser); err != nil {
 		return util.TokenResponse{}, err
 	}
 
-	return util.GenerateTokens(newUser.ID)
+	tokens, err := util.GenerateTokens(newUser.ID)
+	if err != nil {
+		return util.TokenResponse{}, err
+	}
+
+	refreshToken := authModel.RefreshToken{
+		UserID:    newUser.ID,
+		TokenHash: tokens.RefreshToken,
+		ExpiresAt: tokens.RefreshTokenExpiration,
+	}
+
+	if err := s.authRepo.SaveOrUpdateRefreshToken(ctx, &refreshToken); err != nil {
+		return util.TokenResponse{}, err
+	}
+
+	return tokens, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, email string, password string) (util.TokenResponse, error) {
-	user, err := s.authRepo.GetUserByEmail(ctx, email)
+	user, err := s.authRepo.GetUserByEmail(email)
 	if err != nil {
 		if errors.Is(err, authRepository.ErrUserNotFound) {
 			return util.TokenResponse{}, errors.New("user not found")
@@ -52,5 +66,20 @@ func (s *AuthService) Login(ctx context.Context, email string, password string) 
 		return util.TokenResponse{}, errors.New("invalid credentials")
 	}
 
-	return util.GenerateTokens(user.ID)
+	tokens, err := util.GenerateTokens(user.ID)
+	if err != nil {
+		return util.TokenResponse{}, err
+	}
+
+	refreshToken := authModel.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: tokens.RefreshToken,
+		ExpiresAt: tokens.RefreshTokenExpiration,
+	}
+
+	if err := s.authRepo.SaveOrUpdateRefreshToken(ctx, &refreshToken); err != nil {
+		return util.TokenResponse{}, err
+	}
+
+	return tokens, nil
 }

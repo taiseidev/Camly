@@ -1,10 +1,12 @@
 package repository
 
 import (
-	"camly-api/internal/user/model"
+	authModel "camly-api/internal/auth/model"
+	userModel "camly-api/internal/user/model"
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -15,8 +17,9 @@ type AuthRepository struct {
 
 // NOTE(onishi): multiple interfaces in the future
 type IAuthRepository interface {
-	SaveUser(ctx context.Context, user *model.User) error
-	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
+	SaveOrUpdateRefreshToken(ctx context.Context, model *authModel.RefreshToken) error
+	SaveUser(ctx context.Context, user *userModel.User) error
+	GetUserByEmail(email string) (*userModel.User, error)
 }
 
 func NewAuthRepository(db *gorm.DB) IAuthRepository {
@@ -28,7 +31,32 @@ func NewAuthRepository(db *gorm.DB) IAuthRepository {
 	}
 }
 
-func (r *AuthRepository) SaveUser(ctx context.Context, user *model.User) error {
+func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, model *authModel.RefreshToken) error {
+	var refreshToken authModel.RefreshToken
+
+	result := r.db.Model(&refreshToken).Where("user_id = ?", model.ID).First(&model.TokenHash)
+	if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
+		return result.Error
+	}
+
+	if result.RowsAffected > 0 {
+		refreshToken.TokenHash = model.TokenHash
+		refreshToken.ExpiresAt = model.ExpiresAt
+		refreshToken.UpdatedAt = time.Now()
+		// 更新処理
+		if err := r.db.WithContext(ctx).Save(&refreshToken).Error; err != nil {
+			return err
+		}
+	} else {
+		if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *AuthRepository) SaveUser(ctx context.Context, user *userModel.User) error {
 	if user == nil {
 		return fmt.Errorf("user cannot be nil")
 	}
@@ -46,9 +74,9 @@ func (r *AuthRepository) SaveUser(ctx context.Context, user *model.User) error {
 	return nil
 }
 
-func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	var user model.User
-	result := r.db.WithContext(ctx).Where("email = ?", email).First(&user)
+func (r *AuthRepository) GetUserByEmail(email string) (*userModel.User, error) {
+	var user userModel.User
+	result := r.db.Model(&user).Where("email = ?", email).First(&user)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
