@@ -8,6 +8,7 @@ import (
 	"camly-api/internal/user/model"
 	"context"
 	"errors"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -24,7 +25,12 @@ func NewAuthService(authRepo authRepository.IAuthRepository) *AuthService {
 
 func (s *AuthService) SignUp(ctx context.Context, user model.User) (util.TokenResponse, error) {
 	tx := s.authRepo.BeginTransaction(ctx)
-	defer tx.Rollback()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r) // re-panic after rollback
+		}
+	}()
 	// パスワードをハッシュ化
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
@@ -51,7 +57,10 @@ func (s *AuthService) SignUp(ctx context.Context, user model.User) (util.TokenRe
 		return util.TokenResponse{}, err
 	}
 
-	tx.Commit()
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return util.TokenResponse{}, fmt.Errorf("failed to commit transaction")
+	}
 
 	return tokens, nil
 }
@@ -102,8 +111,22 @@ func (s *AuthService) Logout(ctx context.Context, accessToken string) error {
 		return errors.New("invalid or expired access token")
 	}
 
-	if err := s.authRepo.DeleteRefreshToken(ctx, userID); err != nil {
+	tx := s.authRepo.BeginTransaction(ctx)
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r)
+		}
+	}()
+
+	if err := s.authRepo.DeleteRefreshToken(ctx, tx, userID); err != nil {
+		tx.Rollback()
 		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to commit transaction")
 	}
 
 	return nil

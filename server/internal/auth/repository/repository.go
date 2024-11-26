@@ -6,9 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type AuthRepository struct {
@@ -18,7 +18,7 @@ type AuthRepository struct {
 // NOTE(onishi): multiple interfaces in the future
 type IAuthRepository interface {
 	SaveOrUpdateRefreshToken(ctx context.Context, tx *gorm.DB, model *authModel.RefreshToken) error
-	DeleteRefreshToken(ctx context.Context, userID uint) error
+	DeleteRefreshToken(ctx context.Context, x *gorm.DB, userID uint) error
 	SaveUser(ctx context.Context, tx *gorm.DB, user *userModel.User) error
 	GetUserByEmail(ctx context.Context, tx *gorm.DB, email string) (*userModel.User, error)
 	BeginTransaction(ctx context.Context) *gorm.DB
@@ -34,33 +34,15 @@ func NewAuthRepository(db *gorm.DB) IAuthRepository {
 }
 
 func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, tx *gorm.DB, model *authModel.RefreshToken) error {
-	var refreshToken authModel.RefreshToken
-
-	result := tx.WithContext(ctx).Where("user_id = ?", model.UserID).First(&refreshToken)
-	if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
-		return result.Error
-	}
-
-	if result.RowsAffected > 0 {
-		// Update existing refresh token
-		refreshToken.TokenHash = model.TokenHash
-		refreshToken.ExpiresAt = model.ExpiresAt
-		refreshToken.UpdatedAt = time.Now()
-		// 更新処理
-		if err := tx.WithContext(ctx).Save(&refreshToken).Error; err != nil {
-			return err
-		}
-	} else {
-		// Create new refresh token
-		if err := tx.WithContext(ctx).Create(model).Error; err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return tx.WithContext(ctx).
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "user_id"}},
+			DoUpdates: clause.AssignmentColumns([]string{"token_hash", "expires_at", "updated_at"}),
+		}).
+		Create(model).Error
 }
 
-func (r *AuthRepository) DeleteRefreshToken(ctx context.Context, userID uint) error {
+func (r *AuthRepository) DeleteRefreshToken(ctx context.Context, x *gorm.DB, userID uint) error {
 	// userID に基づいてリフレッシュトークンを削除
 	result := r.db.WithContext(ctx).Where("user_id = ?", userID).Delete(&authModel.RefreshToken{})
 
@@ -105,5 +87,5 @@ func (r *AuthRepository) GetUserByEmail(ctx context.Context, tx *gorm.DB, email 
 
 // トランザクション開始
 func (r *AuthRepository) BeginTransaction(ctx context.Context) *gorm.DB {
-	return r.db.Begin()
+	return r.db.WithContext(ctx).Begin()
 }
