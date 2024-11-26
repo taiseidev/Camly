@@ -15,6 +15,9 @@ var cfg *Config
 
 // GetConfig returns the current configuration
 func GetConfig() *Config {
+	if cfg == nil {
+		panic("Configuration not initialized. Ensure LoadConfig() is called first")
+	}
 	return cfg
 }
 

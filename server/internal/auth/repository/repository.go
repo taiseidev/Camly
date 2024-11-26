@@ -17,10 +17,11 @@ type AuthRepository struct {
 
 // NOTE(onishi): multiple interfaces in the future
 type IAuthRepository interface {
-	SaveOrUpdateRefreshToken(ctx context.Context, model *authModel.RefreshToken) error
+	SaveOrUpdateRefreshToken(ctx context.Context, tx *gorm.DB, model *authModel.RefreshToken) error
 	DeleteRefreshToken(ctx context.Context, userID uint) error
-	SaveUser(ctx context.Context, user *userModel.User) error
-	GetUserByEmail(email string) (*userModel.User, error)
+	SaveUser(ctx context.Context, tx *gorm.DB, user *userModel.User) error
+	GetUserByEmail(ctx context.Context, tx *gorm.DB, email string) (*userModel.User, error)
+	BeginTransaction(ctx context.Context) *gorm.DB
 }
 
 func NewAuthRepository(db *gorm.DB) IAuthRepository {
@@ -32,10 +33,10 @@ func NewAuthRepository(db *gorm.DB) IAuthRepository {
 	}
 }
 
-func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, model *authModel.RefreshToken) error {
+func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, tx *gorm.DB, model *authModel.RefreshToken) error {
 	var refreshToken authModel.RefreshToken
 
-	result := r.db.WithContext(ctx).Where("user_id = ?", model.UserID).First(&refreshToken)
+	result := tx.WithContext(ctx).Where("user_id = ?", model.UserID).First(&refreshToken)
 	if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
 		return result.Error
 	}
@@ -46,12 +47,12 @@ func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, model *au
 		refreshToken.ExpiresAt = model.ExpiresAt
 		refreshToken.UpdatedAt = time.Now()
 		// 更新処理
-		if err := r.db.WithContext(ctx).Save(&refreshToken).Error; err != nil {
+		if err := tx.WithContext(ctx).Save(&refreshToken).Error; err != nil {
 			return err
 		}
 	} else {
 		// Create new refresh token
-		if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+		if err := tx.WithContext(ctx).Create(model).Error; err != nil {
 			return err
 		}
 	}
@@ -71,7 +72,7 @@ func (r *AuthRepository) DeleteRefreshToken(ctx context.Context, userID uint) er
 	return nil
 }
 
-func (r *AuthRepository) SaveUser(ctx context.Context, user *userModel.User) error {
+func (r *AuthRepository) SaveUser(ctx context.Context, tx *gorm.DB, user *userModel.User) error {
 	if user == nil {
 		return fmt.Errorf("user cannot be nil")
 	}
@@ -82,16 +83,16 @@ func (r *AuthRepository) SaveUser(ctx context.Context, user *userModel.User) err
 	}
 
 	// ユーザー情報の挿入
-	if err := r.db.WithContext(ctx).Create(user).Error; err != nil {
+	if err := tx.WithContext(ctx).Create(user).Error; err != nil {
 		return fmt.Errorf("failed to save user: %w", err)
 	}
 
 	return nil
 }
 
-func (r *AuthRepository) GetUserByEmail(email string) (*userModel.User, error) {
+func (r *AuthRepository) GetUserByEmail(ctx context.Context, tx *gorm.DB, email string) (*userModel.User, error) {
 	var user userModel.User
-	result := r.db.Model(&user).Where("email = ?", email).First(&user)
+	result := tx.WithContext(ctx).Where("email = ?", email).First(&user)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
@@ -100,4 +101,9 @@ func (r *AuthRepository) GetUserByEmail(email string) (*userModel.User, error) {
 	}
 
 	return &user, nil
+}
+
+// トランザクション開始
+func (r *AuthRepository) BeginTransaction(ctx context.Context) *gorm.DB {
+	return r.db.Begin()
 }

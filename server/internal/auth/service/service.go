@@ -23,7 +23,8 @@ func NewAuthService(authRepo authRepository.IAuthRepository) *AuthService {
 }
 
 func (s *AuthService) SignUp(ctx context.Context, user model.User) (util.TokenResponse, error) {
-
+	tx := s.authRepo.BeginTransaction(ctx)
+	defer tx.Rollback()
 	// パスワードをハッシュ化
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
@@ -31,7 +32,7 @@ func (s *AuthService) SignUp(ctx context.Context, user model.User) (util.TokenRe
 	}
 
 	newUser := model.User{Name: user.Name, Email: user.Email, Password: string(hash)}
-	if err := s.authRepo.SaveUser(ctx, &newUser); err != nil {
+	if err := s.authRepo.SaveUser(ctx, tx, &newUser); err != nil {
 		return util.TokenResponse{}, err
 	}
 
@@ -46,15 +47,20 @@ func (s *AuthService) SignUp(ctx context.Context, user model.User) (util.TokenRe
 		ExpiresAt: tokens.RefreshTokenExpiration,
 	}
 
-	if err := s.authRepo.SaveOrUpdateRefreshToken(ctx, &refreshToken); err != nil {
+	if err := s.authRepo.SaveOrUpdateRefreshToken(ctx, tx, &refreshToken); err != nil {
 		return util.TokenResponse{}, err
 	}
+
+	tx.Commit()
 
 	return tokens, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, email string, password string) (util.TokenResponse, error) {
-	user, err := s.authRepo.GetUserByEmail(email)
+	tx := s.authRepo.BeginTransaction(ctx)
+	defer tx.Rollback()
+
+	user, err := s.authRepo.GetUserByEmail(ctx, tx, email)
 	if err != nil {
 		if errors.Is(err, authRepository.ErrUserNotFound) {
 			return util.TokenResponse{}, errors.New("user not found")
@@ -78,9 +84,11 @@ func (s *AuthService) Login(ctx context.Context, email string, password string) 
 		ExpiresAt: tokens.RefreshTokenExpiration,
 	}
 
-	if err := s.authRepo.SaveOrUpdateRefreshToken(ctx, &refreshToken); err != nil {
+	if err := s.authRepo.SaveOrUpdateRefreshToken(ctx, tx, &refreshToken); err != nil {
 		return util.TokenResponse{}, err
 	}
+
+	tx.Commit()
 
 	return tokens, nil
 }
