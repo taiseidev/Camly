@@ -1,3 +1,4 @@
 gorm
 joho
 godotenv
+InnoDB
