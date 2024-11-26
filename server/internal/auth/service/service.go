@@ -1,6 +1,7 @@
 package service
 
 import (
+	"camly-api/internal/auth"
 	authModel "camly-api/internal/auth/model"
 	authRepository "camly-api/internal/auth/repository"
 	"camly-api/internal/auth/util"
@@ -82,4 +83,27 @@ func (s *AuthService) Login(ctx context.Context, email string, password string) 
 	}
 
 	return tokens, nil
+}
+
+func (s *AuthService) Logout(ctx context.Context, accessToken string) error {
+	// アクセストークンからuserIdを取得
+	userID, err := auth.GetUserIDFromToken(accessToken)
+	if err != nil {
+		// トークンが無効な場合
+		if err.Error() == "no token found" {
+			return err
+		}
+		// トークンの解析に失敗した場合
+		if err.Error() == "invalid token" {
+			return err
+		}
+		// その他のエラー
+		return err
+	}
+
+	if err := s.authRepo.DeleteRefreshToken(ctx, userID); err != nil {
+		return err
+	}
+	
+	return nil
 }

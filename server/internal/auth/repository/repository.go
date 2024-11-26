@@ -18,6 +18,7 @@ type AuthRepository struct {
 // NOTE(onishi): multiple interfaces in the future
 type IAuthRepository interface {
 	SaveOrUpdateRefreshToken(ctx context.Context, model *authModel.RefreshToken) error
+	DeleteRefreshToken(ctx context.Context, userID uint) error
 	SaveUser(ctx context.Context, user *userModel.User) error
 	GetUserByEmail(email string) (*userModel.User, error)
 }
@@ -51,6 +52,18 @@ func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, model *au
 		if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (r *AuthRepository) DeleteRefreshToken(ctx context.Context, userID uint) error {
+	// userID に基づいてリフレッシュトークンを削除
+	result := r.db.WithContext(ctx).Where("user_id = ?", userID).Delete(&authModel.RefreshToken{})
+
+	// エラーチェック
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete refresh token: %w", result.Error)
 	}
 
 	return nil

@@ -5,6 +5,7 @@ import (
 	authHandler "camly-api/internal/auth/handler"
 	authRepository "camly-api/internal/auth/repository"
 	authService "camly-api/internal/auth/service"
+	"camly-api/internal/config"
 	"camly-api/internal/user/repository"
 	"camly-api/internal/user/service"
 	"context"
@@ -70,6 +71,8 @@ func NewApp(db *gorm.DB) *App {
 
 func main() {
 	e := echo.New()
+
+	config.LoadConfig()
 
 	// DB接続
 	db := NewDB()

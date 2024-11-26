@@ -15,5 +15,6 @@ func RegisterRoutes(e *echo.Echo, authHandler *authHandler.AuthHandler) {
 	authRoutes := v1.Group("/auth")
 	authRoutes.POST("/signup", authHandler.SignUp)
 	authRoutes.POST("/login", authHandler.Login)
+	authRoutes.POST("/logout", authHandler.Logout)
 
 }

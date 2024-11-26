@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"camly-api/internal/config"
 	"errors"
 	"fmt"
 	"log"
@@ -84,4 +85,39 @@ func ValidateToken(tokenString string) (*Claims, error) {
 	}
 
 	return claims, nil
+}
+
+func GetUserIDFromToken(accessToken string) (uint, error) {
+	// JWT トークンを検証して userID を抽出
+	userID, err := parseToken(accessToken)
+	if err != nil {
+		return 0, fmt.Errorf("invalid token: %w", err)
+	}
+
+	return userID, nil
+}
+
+func parseToken(tokenStr string) (uint, error) {
+	// JWT トークンを解析する
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		// トークンが有効かどうかの検証を行う
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		// config.JWTSecret は JWT の秘密鍵
+		return []byte(config.JWTSecret), nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	// トークンが有効であれば、claims から userID を取得
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userID, ok := claims["user_id"].(float64)
+		if !ok {
+			return 0, fmt.Errorf("invalid token: user_id not found")
+		}
+		return uint(userID), nil
+	}
+	return 0, fmt.Errorf("invalid token")
 }

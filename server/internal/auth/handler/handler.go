@@ -89,6 +89,33 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, tokens)
 }
 
+type LogoutRequest struct {
+	AccessToken string `json:"access_token"`
+}
+
+func (h *AuthHandler) Logout(c echo.Context) error {
+	// リクエストボディからaccessTokenを取得
+	var req LogoutRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Invalid request body: %v", err))
+	}
+
+	// accessTokenがリクエストボディに含まれているかを確認
+	if req.AccessToken == "" {
+		return c.JSON(http.StatusBadRequest, "accessToken is required")
+	}
+
+	ctx := c.Request().Context()
+
+	err := h.authService.Logout(ctx, req.AccessToken)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	// 成功レスポンスを返す
+	return c.JSON(http.StatusOK, nil)
+}
+
 func validateUserInput(user *model.User) error {
 	if user.Email == "" {
 		return fmt.Errorf("email is required")
