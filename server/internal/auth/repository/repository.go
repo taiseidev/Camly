@@ -35,12 +35,13 @@ func NewAuthRepository(db *gorm.DB) IAuthRepository {
 func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, model *authModel.RefreshToken) error {
 	var refreshToken authModel.RefreshToken
 
-	result := r.db.Model(&refreshToken).Where("user_id = ?", model.ID).First(&model.TokenHash)
+	result := r.db.WithContext(ctx).Where("user_id = ?", model.UserID).First(&refreshToken)
 	if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
 		return result.Error
 	}
 
 	if result.RowsAffected > 0 {
+		// Update existing refresh token
 		refreshToken.TokenHash = model.TokenHash
 		refreshToken.ExpiresAt = model.ExpiresAt
 		refreshToken.UpdatedAt = time.Now()
@@ -49,7 +50,8 @@ func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, model *au
 			return err
 		}
 	} else {
-		if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
+		// Create new refresh token
+		if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 			return err
 		}
 	}

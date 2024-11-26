@@ -70,9 +70,10 @@ func NewApp(db *gorm.DB) *App {
 // https://github.com/taiseidev/Camly/pull/13#discussion_r1850223270
 
 func main() {
-	e := echo.New()
-
+	// TODO(onishi): Add error handling.
 	config.LoadConfig()
+
+	e := echo.New()
 
 	// DB接続
 	db := NewDB()

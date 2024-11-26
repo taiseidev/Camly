@@ -97,19 +97,29 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 	// リクエストボディからaccessTokenを取得
 	var req LogoutRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Invalid request body: %v", err))
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error":   "Invalid request format",
+			"details": err.Error(),
+		})
 	}
 
 	// accessTokenがリクエストボディに含まれているかを確認
 	if req.AccessToken == "" {
-		return c.JSON(http.StatusBadRequest, "accessToken is required")
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error":   "Validation failed",
+			"details": "accessToken is required",
+		})
 	}
 
 	ctx := c.Request().Context()
 
 	err := h.authService.Logout(ctx, req.AccessToken)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		log.Printf("logout failed: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error":   "Logout failed",
+			"details": "An error occurred while processing your request",
+		})
 	}
 
 	// 成功レスポンスを返す

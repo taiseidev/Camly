@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -17,8 +16,8 @@ func getJwtSecret() []byte {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	jwtSecret := os.Getenv("JWT_SECRET_KEY")
-	return []byte(jwtSecret)
+
+	return []byte(config.GetConfig().JWTSecret)
 }
 
 // アクセストークンを生成
@@ -97,6 +96,8 @@ func GetUserIDFromToken(accessToken string) (uint, error) {
 	return userID, nil
 }
 
+// TODO(onishi):Several improvements needed in token parsing logic.
+// https://github.com/taiseidev/Camly/pull/16#discussion_r1859005755
 func parseToken(tokenStr string) (uint, error) {
 	// JWT トークンを解析する
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
@@ -105,7 +106,7 @@ func parseToken(tokenStr string) (uint, error) {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		// config.JWTSecret は JWT の秘密鍵
-		return []byte(config.JWTSecret), nil
+		return []byte(config.GetConfig().JWTSecret), nil
 	})
 	if err != nil {
 		return 0, err
