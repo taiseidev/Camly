@@ -50,6 +50,7 @@ func (h *AuthHandler) SignUp(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error":   "User creation failed",
 			"details": "An error occurred while processing your request",
+			"text":    err.Error(),
 		})
 	}
 

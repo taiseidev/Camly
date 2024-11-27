@@ -24,50 +24,74 @@ func NewAuthService(authRepo authRepository.IAuthRepository) *AuthService {
 }
 
 func (s *AuthService) SignUp(ctx context.Context, user model.User) (util.TokenResponse, error) {
+	// トランザクションの開始
 	tx := s.authRepo.BeginTransaction(ctx)
+	if tx == nil {
+		return util.TokenResponse{}, fmt.Errorf("failed to begin transaction")
+	}
+
+	// deferでリカバリーを行い、panicが発生した場合はロールバック
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
-			panic(r) // re-panic after rollback
+			panic(r)
 		}
 	}()
+
 	// パスワードをハッシュ化
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
-		return util.TokenResponse{}, err
+		tx.Rollback()
+		return util.TokenResponse{}, fmt.Errorf("failed to hash password: %v", err)
 	}
 
+	// ユーザーの作成
 	newUser := model.User{Name: user.Name, Email: user.Email, Password: string(hash)}
 	if err := s.authRepo.SaveUser(ctx, tx, &newUser); err != nil {
-		return util.TokenResponse{}, err
+		tx.Rollback()
+		return util.TokenResponse{}, fmt.Errorf("failed to save user: %v", err)
 	}
 
+	// トークンの生成
 	tokens, err := util.GenerateTokens(newUser.ID)
 	if err != nil {
-		return util.TokenResponse{}, err
+		tx.Rollback()
+		return util.TokenResponse{}, fmt.Errorf("failed to generate tokens: %v", err)
 	}
 
+	// リフレッシュトークンの作成
 	refreshToken := authModel.RefreshToken{
 		UserID:    newUser.ID,
 		TokenHash: tokens.RefreshToken,
 		ExpiresAt: tokens.RefreshTokenExpiration,
 	}
 
+	// リフレッシュトークンの保存
 	if err := s.authRepo.SaveOrUpdateRefreshToken(ctx, tx, &refreshToken); err != nil {
-		return util.TokenResponse{}, err
-	}
-
-	if err := tx.Commit(); err != nil {
 		tx.Rollback()
-		return util.TokenResponse{}, fmt.Errorf("failed to commit transaction")
+		return util.TokenResponse{}, fmt.Errorf("failed to save refresh token: %v", err)
 	}
 
+	// トランザクションのコミット
+	tx.Commit()
+
+	// 正常終了
 	return tokens, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, email string, password string) (util.TokenResponse, error) {
 	tx := s.authRepo.BeginTransaction(ctx)
-	defer tx.Rollback()
+	if tx == nil {
+		return util.TokenResponse{}, fmt.Errorf("failed to begin transaction")
+	}
+
+	// deferでリカバリーを行い、panicが発生した場合はロールバック
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r)
+		}
+	}()
 
 	user, err := s.authRepo.GetUserByEmail(ctx, tx, email)
 	if err != nil {
@@ -111,22 +135,8 @@ func (s *AuthService) Logout(ctx context.Context, accessToken string) error {
 		return errors.New("invalid or expired access token")
 	}
 
-	tx := s.authRepo.BeginTransaction(ctx)
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-			panic(r)
-		}
-	}()
-
-	if err := s.authRepo.DeleteRefreshToken(ctx, tx, userID); err != nil {
-		tx.Rollback()
+	if err := s.authRepo.DeleteRefreshToken(ctx, userID); err != nil {
 		return err
-	}
-
-	if err := tx.Commit(); err != nil {
-		tx.Rollback()
-		return fmt.Errorf("failed to commit transaction")
 	}
 
 	return nil

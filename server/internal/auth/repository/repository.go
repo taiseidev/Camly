@@ -18,7 +18,7 @@ type AuthRepository struct {
 // NOTE(onishi): multiple interfaces in the future
 type IAuthRepository interface {
 	SaveOrUpdateRefreshToken(ctx context.Context, tx *gorm.DB, model *authModel.RefreshToken) error
-	DeleteRefreshToken(ctx context.Context, x *gorm.DB, userID uint) error
+	DeleteRefreshToken(ctx context.Context, userID uint) error
 	SaveUser(ctx context.Context, tx *gorm.DB, user *userModel.User) error
 	GetUserByEmail(ctx context.Context, tx *gorm.DB, email string) (*userModel.User, error)
 	BeginTransaction(ctx context.Context) *gorm.DB
@@ -42,7 +42,7 @@ func (r *AuthRepository) SaveOrUpdateRefreshToken(ctx context.Context, tx *gorm.
 		Create(model).Error
 }
 
-func (r *AuthRepository) DeleteRefreshToken(ctx context.Context, x *gorm.DB, userID uint) error {
+func (r *AuthRepository) DeleteRefreshToken(ctx context.Context, userID uint) error {
 	// userID に基づいてリフレッシュトークンを削除
 	result := r.db.WithContext(ctx).Where("user_id = ?", userID).Delete(&authModel.RefreshToken{})
 
