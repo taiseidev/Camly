@@ -6,7 +6,7 @@ final class UpdateHeaderInterceptor extends Interceptor {
   const UpdateHeaderInterceptor();
 
   @override
-  void onRequest(
+  Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {

@@ -12,6 +12,7 @@ final class ApiException implements Exception {
 
   factory ApiException.fromDioError(DioException error) {
     return ApiException(
+      // ignore: avoid_dynamic_calls
       message: error.response?.data['message'] ?? error.message,
       statusCode: error.response?.statusCode,
     );

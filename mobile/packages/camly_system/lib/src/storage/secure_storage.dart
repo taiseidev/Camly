@@ -10,7 +10,7 @@ enum SecureStorageKey {
   }
 
   Future<String?> read() async {
-    return await storage.instance.read(key: name);
+    return storage.instance.read(key: name);
   }
 
   Future<void> delete() async {

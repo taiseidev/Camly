@@ -1,7 +1,7 @@
 name: camly_system
-description: An extendable and modular Flutter template designed to accelerate app development. Providing a flexible foundation for a wide range of mobile applications.
+description: A modular system package for Flutter applications, including API client, secure storage, and app configuration management. Designed for rapid development and scalability.
 publish_to: 'none'
-version: 0.0.1
+version: 0.1.0-dev
 
 environment:
   sdk: ^3.5.3
@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  camly_lints:
+    path: ../../packages/camly_lints
   dio: ^5.7.0
   flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.3
   package_info_plus: ^8.1.1

@@ -6,15 +6,17 @@ import 'result.dart';
 
 final class ApiClient {
   ApiClient(String baseUrl)
-      : _dio = Dio(BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: Duration(microseconds: 5000),
-          receiveTimeout: Duration(microseconds: 3000),
-        )) {
-    this._dio.interceptors.addAll(
+      : _dio = Dio(
+          BaseOptions(
+            baseUrl: baseUrl,
+            connectTimeout: const Duration(microseconds: 5000),
+            receiveTimeout: const Duration(microseconds: 3000),
+          ),
+        ) {
+    _dio.interceptors.addAll(
       [
         LogInterceptor(),
-        UpdateHeaderInterceptor(),
+        const UpdateHeaderInterceptor(),
       ],
     );
   }
