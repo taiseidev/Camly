@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: camly_lints
+dependency_overrides:
+  camly_lints:
+    path: ../camly_lints

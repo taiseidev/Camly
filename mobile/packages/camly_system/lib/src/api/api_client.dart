@@ -2,21 +2,22 @@ import 'package:dio/dio.dart';
 
 import 'api_exception.dart';
 import 'interceptors/update_header_interceptor.dart';
-import 'result.dart';
+import 'interceptors/update_tokens_interceptor.dart';
 
 final class ApiClient {
   ApiClient(String baseUrl)
       : _dio = Dio(
           BaseOptions(
             baseUrl: baseUrl,
-            connectTimeout: const Duration(microseconds: 5000),
-            receiveTimeout: const Duration(microseconds: 3000),
+            connectTimeout: const Duration(milliseconds: 5000),
+            receiveTimeout: const Duration(milliseconds: 5000),
           ),
         ) {
     _dio.interceptors.addAll(
       [
         LogInterceptor(),
         const UpdateHeaderInterceptor(),
+        const UpdateTokensInterceptor(),
       ],
     );
   }
@@ -24,32 +25,32 @@ final class ApiClient {
   final Dio _dio;
 
   /// GETリクエスト
-  Future<Result<T>> get<T>(
+  Future<T> get<T>(
     String endpoint, {
     Map<String, dynamic>? params,
   }) async {
     try {
       final response = await _dio.get(endpoint, queryParameters: params);
-      return Success(response.data);
+      return response.data;
     } on DioException catch (e) {
-      return Failure(ApiException.fromDioError(e));
+      throw ApiException.fromDioError(e);
     } catch (e) {
-      return Failure(ApiException(message: e.toString()));
+      throw ApiException(message: e.toString());
     }
   }
 
   /// POSTリクエスト
-  Future<Result<T>> post<T>(
+  Future<T> post<T>(
     String endpoint, {
     Map<String, dynamic>? data,
   }) async {
     try {
       final response = await _dio.post(endpoint, data: data);
-      return Success(response.data);
+      return response.data;
     } on DioException catch (e) {
-      return Failure(ApiException.fromDioError(e));
+      throw ApiException.fromDioError(e);
     } catch (e) {
-      return Failure(ApiException(message: e.toString()));
+      throw ApiException(message: e.toString());
     }
   }
 }

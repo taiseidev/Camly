@@ -2,6 +2,7 @@ package routes
 
 import (
 	authHandler "camly-api/internal/auth/handler"
+	"camly-api/internal/middleware"
 
 	"github.com/labstack/echo/v4"
 )
@@ -12,6 +13,11 @@ import (
 func RegisterRoutes(e *echo.Echo, authHandler *authHandler.AuthHandler) {
 	// TODO(onishi): 認証ミドルウェアをauthグループまたは特にlogoutルートに追加する。
 	v1 := e.Group("/api/v1")
+
+	// ヘッダが適切にセットされているかどうかのミドルウェア
+	v1.Use(middleware.CheckHeadersMiddleware)
+	v1.Use(middleware.RequestLoggerMiddleware)
+
 	// 認証関連のルートを定義
 	authRoutes := v1.Group("/auth")
 	authRoutes.POST("/signup", authHandler.SignUp)

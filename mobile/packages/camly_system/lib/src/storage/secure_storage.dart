@@ -1,19 +1,23 @@
 import 'secure_storage_singleton.dart';
 
 enum SecureStorageKey {
-  accessToken;
+  // トークン
+  accessToken,
+  refreshToken,
 
-  final storage = SecureStorageSingleton();
+  // トークンの有効期限
+  accessTokenExpiration,
+  refreshTokenExpiration;
 
   Future<void> save(String value) async {
-    await storage.instance.write(key: name, value: value);
+    await SecureStorageSingleton().instance.write(key: name, value: value);
   }
 
   Future<String?> read() async {
-    return storage.instance.read(key: name);
+    return SecureStorageSingleton().instance.read(key: name);
   }
 
   Future<void> delete() async {
-    await storage.instance.delete(key: name);
+    await SecureStorageSingleton().instance.delete(key: name);
   }
 }

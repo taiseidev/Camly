@@ -46,7 +46,7 @@ func (s *AuthService) SignUp(ctx context.Context, user model.User) (util.TokenRe
 	}
 
 	// ユーザーの作成
-	newUser := model.User{Name: user.Name, Email: user.Email, Password: string(hash)}
+	newUser := model.User{Email: user.Email, Password: string(hash)}
 	if err := s.authRepo.SaveUser(ctx, tx, &newUser); err != nil {
 		tx.Rollback()
 		return util.TokenResponse{}, fmt.Errorf("failed to save user: %v", err)
