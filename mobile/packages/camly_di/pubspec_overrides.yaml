@@ -1,0 +1,10 @@
+# melos_managed_dependency_overrides: camly_lints,camly_domain,camly_data,camly_system
+dependency_overrides:
+  camly_data:
+    path: ../camly_data
+  camly_domain:
+    path: ../camly_domain
+  camly_lints:
+    path: ../camly_lints
+  camly_system:
+    path: ../camly_system

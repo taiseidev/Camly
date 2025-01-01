@@ -1,0 +1,25 @@
+name: camly_di
+description: f
+publish_to: 'none'
+version: 0.0.1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  camly_lints:
+    path: ../../packages/camly_lints
+  camly_domain:
+    path: ../../packages/camly_domain
+  camly_data:
+    path: ../../packages/camly_data
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+dev_dependencies:
+ flutter_test:
+   sdk: flutter
+ build_runner: ^2.4.13
+ riverpod_generator: ^2.6.3

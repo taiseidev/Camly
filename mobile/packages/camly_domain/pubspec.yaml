@@ -1,0 +1,13 @@
+name: camly_domain
+description: f
+publish_to: 'none'
+version: 0.0.1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  camly_lints:
+    path: ../../packages/camly_lints

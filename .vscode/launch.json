@@ -2,6 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Mock-dev app",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/mobile/apps/camly_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/mobile/apps/camly_app",
+            "flutterMode": "debug",
+            "args": [
+                "--dart-define=FLAVOR=dev",
+                "--dart-define=MOCK=true",
+            ]
+        },
+        {
             "name": "Debug-dev app",
             "request": "launch",
             "type": "dart",
